@@ -75,7 +75,7 @@ window.onload = function() {
     var damage;
     var death;
     var gameEnd = false;
-    var notInScript = 1;
+    var notInScript = 0;
     var regularShoot = 0;
     var regularShootTime = 0;
     var regularShootSpeed = 0;
@@ -181,6 +181,7 @@ window.onload = function() {
     	    damage = game.add.audio('damage');
     	    damage.allowMultiple = true;
     	    death = game.add.audio('death');
+    	    music.play('', 0, 1, true);
     	        	    
     	    game.scale.fullScreenScaleMode = Phaser.ScaleManager.SHOW_ALL;
     	    game.input.onDown.add(fullScreenStart, this);
@@ -202,7 +203,6 @@ window.onload = function() {
     	    	    	    startText.destroy();
     	    	    	    startText2.destroy();
     	    	    	    gameRunning = true;
-    	    	    	    music.play('', 0, 1, true);
     	    	    }
     	    	    game.scale.startFullScreen(true);
     	    	    game.paused = false;
@@ -235,6 +235,7 @@ window.onload = function() {
     	    if (gameRunning) //game actually running
     	    {
     	    	    //console.log('count' + count);
+    	    	    game.time.events.add(Phaser.Timer.SECOND * .75, airEnd, null);
     	    	    
     	    	    avatarText.setText('Player 1: ' + avatarLife);
     	    	    enemyText.setText('Player 2: ' + enemyLife);
@@ -427,19 +428,19 @@ window.onload = function() {
     	    	    	    	    shoot.play('', .6, 1, false);
     	    	    	    	    if (enemyFace)
     	    	    	    	    {
-    	    	    	    	    	    snipeShoot = enemySnipeGroup.create(enemy.x + 15, enemy.y, 'bullet')
+    	    	    	    	    	    snipeShoot = enemySnipeGroup.create(enemy.x + 15, enemy.y + 15, 'bullet')
     	    	    	    	    }
     	    	    	    	    else
     	    	    	    	    {
-    	    	    	    	    	    snipeShoot = enemySnipeGroup.create(enemy.x - 15, enemy.y, 'bullet')
+    	    	    	    	    	    snipeShoot = enemySnipeGroup.create(enemy.x - 15, enemy.y + 15, 'bullet')
     	    	    	    	    	    snipeShoot.scale.x = snipeShoot.scale.x * -1;
     	    	    	    	    }
     	    	    	    	    game.physics.arcade.enable(snipeShoot);
     	    	    	    	    //var y = getYRegAimAir();
     	    	    	    	    //var x = getXRegAimAir();
     	    	    	    	    snipeAimSet();
-    	    	    	    	    //console.log('y: ' + y);
-    	    	    	    	    //console.log('x: ' + x);
+    	    	    	    	    console.log('y: ' + snipeShootSpeed);
+    	    	    	    	    console.log('x: ' + snipeShootSpeedX);
     	    	    	    	    snipeShoot.body.velocity.y = snipeShootSpeed;
     	    	    	    	    snipeShoot.body.velocity.x = snipeShootSpeedX;
     	    	    	    	    //enemyShot.animations.add('regShotE', [0, 1], 10, true);
@@ -506,22 +507,22 @@ window.onload = function() {
     	    	    else if (notInScript && avatar.x < 743 && enemy.x < 281)
     	    	    {
     	    	    	    //console.log('script31');
-    	    	    	    //script31();
+    	    	    	    script31();
     	    	    }
     	    	    else if (notInScript && avatar.x < 743 && enemy.x < 512)
     	    	    {
     	    	    	    //console.log('script32');
-    	    	    	    //script32();
+    	    	    	    script32();
     	    	    }
     	    	    else if (notInScript && avatar.x < 743 && enemy.x < 743)
     	    	    {
     	    	    	    //console.log('script33');
-    	    	    	    //script33();
+    	    	    	    script33();
     	    	    }
     	    	    else if (notInScript && avatar.x < 743 && enemy.x < 974)
     	    	    {
     	    	    	    //console.log('script34');
-    	    	    	    //script34();
+    	    	    	    script34();
     	    	    }
     	    	    else if (notInScript && avatar.x < 974 && enemy.x < 281)
     	    	    {
@@ -688,20 +689,20 @@ window.onload = function() {
     {
     	    if (enemyFace)
     	    {
-    	    	    snipeShootSpeedX = game.rnd.integerInRange(650, 900);
+    	    	    snipeShootSpeedX = game.rnd.integerInRange(650, 1100);
     	    }
     	    else
     	    {
-    	    	    snipeShootSpeedX = -game.rnd.integerInRange(650, 900);
+    	    	    snipeShootSpeedX = -game.rnd.integerInRange(650, 1100);
     	    }
     	    snipeAimValue = enemy.body.y - avatar.body.y;
     	    if (snipeAimValue === 0)
     	    {
-    	    	    snipeShootSpeed = game.rnd.integerInRange(-10, 10);
+    	    	    snipeShootSpeed = -game.rnd.integerInRange(0, 5);
     	    }
     	    else
     	    {
-    	    	    snipeShootSpeed = game.rnd.integerInRange(-25, 25) + (-Math.sqrt((snipeShootSpeedX * snipeShootSpeedX) + (snipeAimValue * snipeAimValue)));
+    	    	    snipeShootSpeed = -game.rnd.integerInRange(0, 50) - snipeAimValue;
     	    }
     }
     
@@ -828,14 +829,14 @@ window.onload = function() {
     	    inGroundAttack = 1;
     	    if (game.rnd.integerInRange(1, 9) < 4)
     	    {
-    	    	    shoot.play('', .6, 1, false);
+    	    	    //shoot.play('', .6, 1, false);
     	    	    snipeShootCount = 1;
     	    	    game.time.events.add(Phaser.Timer.SECOND * .75, readySnipeShoot, null);  
     	    }
     	    else
     	    {
     	    	    //arc shot
-    	    	    game.time.events.add(Phaser.Timer.SECOND * 1.75, endGroundScript, null);
+    	    	    endGroundScript();
     	    }
     }
     
@@ -991,14 +992,14 @@ window.onload = function() {
     	    inGroundAttack = 1;
     	    if (game.rnd.integerInRange(1, 9) < 4)
     	    {
-    	    	    shoot.play('', .6, 1, false);
+    	    	    //shoot.play('', .6, 1, false);
     	    	    snipeShootCount = 1;
     	    	    game.time.events.add(Phaser.Timer.SECOND * .75, readySnipeShoot, null);  
     	    }
     	    else
     	    {
     	    	    //arc shot
-    	    	    game.time.events.add(Phaser.Timer.SECOND * 1.75, endGroundScript, null);
+    	    	    endGroundScript();
     	    }
     }
     
