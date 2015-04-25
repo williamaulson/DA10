@@ -94,6 +94,16 @@ window.onload = function() {
     var snipeAimValue = 0;
     var enemySnipeGroup;
     var firstStart = 1;
+    var aimObject;
+    var avatarOnGround;
+    var previousAvatarX;
+    var avatarX = 0;
+    var towards;
+    var avatarTowards;
+    var avatarHigh;
+    var avatarQuandrant;
+    var enemyQuandrant;
+    var scriptSelection;
     
     function create() //create assets
     {
@@ -212,7 +222,8 @@ window.onload = function() {
     
     function update() //run game logic
     {
-    	    //console.log('enemy y' + enemy.body.y);
+    	    console.log('enemy y' + enemy.body.y);
+    	    console.log('avatar y' + avatar.body.y);
     	    
     	    if ((avatarLife < 1) && (gameEnd === false)) //endgame check
     	    {
@@ -235,6 +246,15 @@ window.onload = function() {
     	       	    
     	    if (gameRunning) //game actually running
     	    {
+    	    	    setScriptChecks();
+    	    	    setScript();
+    	    	    callScript(avatarQuandrant, enemyQuandrant, scriptSelection);
+    	    	    
+    	    	    
+    	    	    
+    	    	    
+    	    	    
+    	    	    
     	    	    //console.log('count' + count);
     	    	    if (firstStart)
     	    	    {
@@ -406,16 +426,18 @@ window.onload = function() {
     	    	    {
     	    	    	    if (game.time.now > regularShootTime)
     	    	    	    {
+    	    	    	    	    aimObject = game.add.sprite(avatar.body.x + game.rnd.integerInRange(-50, 50), avatar.body.y + game.rnd.integerInRange(-50, 50), '');
     	    	    	    	    shoot.play('', .6, 1, false);
     	    	    	    	    enemyShot = enemyShotGroup.create(enemy.x, enemy.y + 5, 'shot');
     	    	    	    	    game.physics.arcade.enable(enemyShot);
     	    	    	    	    //var y = getYRegAimAir();
     	    	    	    	    //var x = getXRegAimAir();
-    	    	    	    	    aimSet();
+    	    	    	    	    //aimSet();
     	    	    	    	    //console.log('y: ' + y);
     	    	    	    	    //console.log('x: ' + x);
-    	    	    	    	    enemyShot.body.velocity.y = regularShootSpeed;
-    	    	    	    	    enemyShot.body.velocity.x = regularShootSpeedX;
+    	    	    	    	    //enemyShot.body.velocity.y = regularShootSpeed;
+    	    	    	    	    //enemyShot.body.velocity.x = regularShootSpeedX;
+    	    	    	    	    game.physics.arcade.moveToObject(enemyShot, aimObject, game.rnd.integerInRange(400, 600));
     	    	    	    	    enemyShot.animations.add('regShotE', [0, 1], 10, true);
     	    	    	    	    enemyShot.animations.play('regShotE');
     	    	    	    	    regularShootTime = game.time.now + (300 * regularShootRate);
@@ -432,6 +454,7 @@ window.onload = function() {
     	    	    {
     	    	    	    if (game.time.now > snipeShootTime)
     	    	    	    {
+    	    	    	    	    aimObject = game.add.sprite(avatar.body.x + game.rnd.integerInRange(-25, 25), avatar.body.y + game.rnd.integerInRange(-25, 25), '');
     	    	    	    	    shoot.play('', .6, 1, false);
     	    	    	    	    if (enemyFace)
     	    	    	    	    {
@@ -445,13 +468,14 @@ window.onload = function() {
     	    	    	    	    game.physics.arcade.enable(snipeShoot);
     	    	    	    	    //var y = getYRegAimAir();
     	    	    	    	    //var x = getXRegAimAir();
-    	    	    	    	    snipeAimSet();
-    	    	    	    	    console.log('y: ' + snipeShootSpeed);
-    	    	    	    	    console.log('x: ' + snipeShootSpeedX);
-    	    	    	    	    snipeShoot.body.velocity.y = snipeShootSpeed;
-    	    	    	    	    snipeShoot.body.velocity.x = snipeShootSpeedX;
+    	    	    	    	    //snipeAimSet();
+    	    	    	    	    //console.log('y: ' + snipeShootSpeed);
+    	    	    	    	    //console.log('x: ' + snipeShootSpeedX);
+    	    	    	    	    //snipeShoot.body.velocity.y = snipeShootSpeed;
+    	    	    	    	    //snipeShoot.body.velocity.x = snipeShootSpeedX;
     	    	    	    	    //enemyShot.animations.add('regShotE', [0, 1], 10, true);
     	    	    	    	    //enemyShot.animations.play('regShotE');
+    	    	    	    	    game.physics.arcade.moveToObject(snipeShoot, aimObject, game.rnd.integerInRange(1000, 1300));
     	    	    	    	    snipeShootTime = game.time.now + (300 * snipeShootRate);
     	    	    	    	    snipeShootCount = snipeShootCount - 1;
     	    	    	    }
@@ -678,6 +702,563 @@ window.onload = function() {
     	    }
     }
     
+    function setScriptChecks()
+    {
+    	    previousAvatarX = avatarX;
+    	    avatarX = avatar.body.x;
+    	    if (avatar.body.y < 478)
+    	    {
+    	    	    avatarOnGround = 0;
+    	    }
+    	    else
+    	    {
+    	     	    avatarOnGround = 1;
+    	    }
+    	    towards = previousAvatarX - avatarX;
+    	    if (towards < 0)
+    	    {
+    	       	    avatarTowards = 2;
+    	    }
+    	    else if (towards > 0)
+    	    {
+    	       	    avatarTowards = 0;
+    	    }
+    	    else
+    	    {
+    	       	    avatarTowards = 1;
+    	    }
+    	    if (avatar.y < 400)
+    	    {
+    	       	    avatarHigh = 1;
+    	    }
+    	    else
+    	    {
+    	       	    avatarHigh = 0;
+    	    }
+    	    avatarQuandrant = Math.floor((avatar.body.x - 50) / 115.5);
+    	    enemyQuandrant = Math.floor((enemy.body.x - 50) / 115.5);
+    }
+    
+    function setScript()
+    {
+    	    if (avatarOnGround)
+    	    {
+    	    	    if (avatarTowards === 2)
+    	    	    {
+    	    	    	    if (avatarHigh)
+    	    	    	    {
+    	    	    	    	    scriptSelection = 1;
+    	    	    	    }
+    	    	    	    else
+    	    	    	    {
+    	    	    	    	    scriptSelection = 2;
+    	    	    	    }
+    	    	    }
+    	    	    else if (avatarTowards === 0)
+    	    	    {
+    	    	    	    if (avatarHigh)
+    	    	    	    {
+    	    	    	    	    scriptSelection = 3;
+    	    	    	    }
+    	    	    	    else
+    	    	    	    {
+    	    	    	    	    scriptSelection = 4;
+    	    	    	    }
+    	    	    }
+    	    	    else
+    	    	    {
+    	    	    	    if (avatarHigh)
+    	    	    	    {
+    	    	    	    	    scriptSelection = 5;
+    	    	    	    }
+    	    	    	    else
+    	    	    	    {
+    	    	    	    	    scriptSelection = 6;
+    	    	    	    }
+    	    	    }
+    	    	    
+    	    }
+    	    else
+    	    {
+    	    	    if (avatarTowards === 2)
+    	    	    {
+    	    	    	    scriptSelection = 7;
+    	    	    }
+    	    	    else if (avatarTowards === 0)
+    	    	    {
+    	    	    	    scriptSelection = 8;
+    	    	    }
+    	    	    else
+    	    	    {
+    	    	    	    scriptSelection = 9;
+    	    	    }
+    	    }
+    }
+    
+    function callScript(avatarQuandrant, enemyQuandrant, scriptSelection);
+    {
+    	    if (avatarQuandrant < 5)
+    	    	    {
+    	    	    	    if (avatarQuandrant < 3)
+    	    	    	    {
+    	    	    	    	    if (avatarQuandrant === 1)
+    	    	    	    	    {
+    	    	    	    	    	    if (enemyQuandrant < 5)
+    	    	    	    	    	    {
+    	    	    	    	    	    	    if (enemyQuandrant < 3)
+    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    if (enemyQuandrant === 1)
+    	    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    	    script11(scriptSelection);
+    	    	    	    	    	    	    	    }
+    	    	    	    	    	    	    	    else
+    	    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    	    script12(scriptSelection);
+    	    	    	    	    	    		    }
+    	    	    	    	    
+    	    	    	    	    	    	    }
+    	    	    	    	    	    	    else
+    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    if (enemyQuandrant === 3)
+    	    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    	    script13(scriptSelection);
+    	    	    	    	    	    	    	    }
+    	    	    	    	    	    	    	    else
+    	    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    	    script14(scriptSelection);
+    	    	    	    	    	    	    	    }
+    	    	    	    	    	    	    }
+    	    	    	    	    	    }
+    	    	    	    	    	    else
+    	    	    	    	    	    {
+    	    	    	    	    	    	    if (enemyQuandrant < 7)
+    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    if (enemyQuandrant === 5)
+    	    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    	    script15(scriptSelection);
+    	    	    	    	    	    	    	    }
+    	    	    	    	    	    	    	    else
+    	    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    	    script16(scriptSelection);
+    	    	    	    	    	    	    	    }
+    	    	    	    	    
+    	    	    	    	    	    	    }
+    	    	    	    	    	    	    else
+    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    if (enemyQuandrant === 7)
+    	    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    	    script17(scriptSelection);
+    	    	    	    	    	    	    	    }
+    	    	    	    	    	    	    	    else
+    	    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    	    script18(scriptSelection);
+    	    	    	    	    	    	    	    }
+    	    	    	    	    	    	    }
+    	    	    	    	    	    }
+       	    	 	    	    }
+    	    	    	    	    else
+    	    	    	    	    {
+    	    	    	    	    	    if (enemyQuandrant < 5)
+    	    	    	    	    	    {
+    	    	    	    	    	    	    if (enemyQuandrant < 3)
+    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    if (enemyQuandrant === 1)
+    	    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    	    script21(scriptSelection);
+    	    	    	    	    	    	    	    }
+    	    	    	    	    	    	    	    else
+    	    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    	    script22(scriptSelection);
+    	    	    	    	    	    		    }
+    	    	    	    	    
+    	    	    	    	    	    	    }
+    	    	    	    	    	    	    else
+    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    if (enemyQuandrant === 3)
+    	    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    	    script23(scriptSelection);
+    	    	    	    	    	    	    	    }
+    	    	    	    	    	    	    	    else
+    	    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    	    script24(scriptSelection);
+    	    	    	    	    	    	    	    }
+    	    	    	    	    	    	    }
+    	    	    	    	    	    }
+    	    	    	    	    	    else
+    	    	    	    	    	    {
+    	    	    	    	    	    	    if (enemyQuandrant < 7)
+    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    if (enemyQuandrant === 5)
+    	    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    	    script25(scriptSelection);
+    	    	    	    	    	    	    	    }
+    	    	    	    	    	    	    	    else
+    	    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    	    script26(scriptSelection);
+    	    	    	    	    	    	    	    }
+    	    	    	    	    
+    	    	    	    	    	    	    }
+    	    	    	    	    	    	    else
+    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    if (enemyQuandrant === 7)
+    	    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    	    script27(scriptSelection);
+    	    	    	    	    	    	    	    }
+    	    	    	    	    	    	    	    else
+    	    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    	    script28(scriptSelection);
+    	    	    	    	    	    	    	    }
+    	    	    	    	    	    	    }
+    	    	    	    	    	    }
+    	    	    	    	    }
+    	    	    	    	    
+    	    	    	    }
+    	    	    	    else
+    	    	    	    {
+    	    	    	    	    if (avatarQuandrant === 3)
+    	    	    	    	    {
+    	    	    	    	    	    if (enemyQuandrant < 5)
+    	    	    	    	    	    {
+    	    	    	    	    	    	    if (enemyQuandrant < 3)
+    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    if (enemyQuandrant === 1)
+    	    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    	    script31(scriptSelection);
+    	    	    	    	    	    	    	    }
+    	    	    	    	    	    	    	    else
+    	    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    	    script32(scriptSelection);
+    	    	    	    	    	    		    }
+    	    	    	    	    
+    	    	    	    	    	    	    }
+    	    	    	    	    	    	    else
+    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    if (enemyQuandrant === 3)
+    	    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    	    script33(scriptSelection);
+    	    	    	    	    	    	    	    }
+    	    	    	    	    	    	    	    else
+    	    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    	    script34(scriptSelection);
+    	    	    	    	    	    	    	    }
+    	    	    	    	    	    	    }
+    	    	    	    	    	    }
+    	    	    	    	    	    else
+    	    	    	    	    	    {
+    	    	    	    	    	    	    if (enemyQuandrant < 7)
+    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    if (enemyQuandrant === 5)
+    	    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    	    script35(scriptSelection);
+    	    	    	    	    	    	    	    }
+    	    	    	    	    	    	    	    else
+    	    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    	    script36(scriptSelection);
+    	    	    	    	    	    	    	    }
+    	    	    	    	    
+    	    	    	    	    	    	    }
+    	    	    	    	    	    	    else
+    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    if (enemyQuandrant === 7)
+    	    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    	    script37(scriptSelection);
+    	    	    	    	    	    	    	    }
+    	    	    	    	    	    	    	    else
+    	    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    	    script38(scriptSelection);
+    	    	    	    	    	    	    	    }
+    	    	    	    	    	    	    }
+    	    	    	    	    	    }
+    	    	    	    	    }
+    	    	    	    	    else
+    	    	    	    	    {
+    	    	    	    	    	    if (enemyQuandrant < 5)
+    	    	    	    	    	    {
+    	    	    	    	    	    	    if (enemyQuandrant < 3)
+    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    if (enemyQuandrant === 1)
+    	    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    	    script41(scriptSelection);
+    	    	    	    	    	    	    	    }
+    	    	    	    	    	    	    	    else
+    	    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    	    script42(scriptSelection);
+    	    	    	    	    	    		    }
+    	    	    	    	    
+    	    	    	    	    	    	    }
+    	    	    	    	    	    	    else
+    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    if (enemyQuandrant === 3)
+    	    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    	    script43(scriptSelection);
+    	    	    	    	    	    	    	    }
+    	    	    	    	    	    	    	    else
+    	    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    	    script44(scriptSelection);
+    	    	    	    	    	    	    	    }
+    	    	    	    	    	    	    }
+    	    	    	    	    	    }
+    	    	    	    	    	    else
+    	    	    	    	    	    {
+    	    	    	    	    	    	    if (enemyQuandrant < 7)
+    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    if (enemyQuandrant === 5)
+    	    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    	    script45(scriptSelection);
+    	    	    	    	    	    	    	    }
+    	    	    	    	    	    	    	    else
+    	    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    	    script46(scriptSelection);
+    	    	    	    	    	    	    	    }
+    	    	    	    	    
+    	    	    	    	    	    	    }
+    	    	    	    	    	    	    else
+    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    if (enemyQuandrant === 7)
+    	    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    	    script47(scriptSelection);
+    	    	    	    	    	    	    	    }
+    	    	    	    	    	    	    	    else
+    	    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    	    script48(scriptSelection);
+    	    	    	    	    	    	    	    }
+    	    	    	    	    	    	    }
+    	    	    	    	    	    }
+    	    	    	    	    }
+    	    	    	    }
+    	    	    }
+    	    	    else
+    	    	    {
+    	    	    	    if (avatarQuandrant < 7)
+    	    	    	    {
+    	    	    	    	    if (avatarQuandrant === 5)
+    	    	    	    	    {
+    	    	    	    	    	    if (enemyQuandrant < 5)
+    	    	    	    	    	    {
+    	    	    	    	    	    	    if (enemyQuandrant < 3)
+    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    if (enemyQuandrant === 1)
+    	    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    	    script51(scriptSelection);
+    	    	    	    	    	    	    	    }
+    	    	    	    	    	    	    	    else
+    	    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    	    script52(scriptSelection);
+    	    	    	    	    	    		    }
+    	    	    	    	    
+    	    	    	    	    	    	    }
+    	    	    	    	    	    	    else
+    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    if (enemyQuandrant === 3)
+    	    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    	    script53(scriptSelection);
+    	    	    	    	    	    	    	    }
+    	    	    	    	    	    	    	    else
+    	    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    	    script54(scriptSelection);
+    	    	    	    	    	    	    	    }
+    	    	    	    	    	    	    }
+    	    	    	    	    	    }
+    	    	    	    	    	    else
+    	    	    	    	    	    {
+    	    	    	    	    	    	    if (enemyQuandrant < 7)
+    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    if (enemyQuandrant === 5)
+    	    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    	    script55(scriptSelection);
+    	    	    	    	    	    	    	    }
+    	    	    	    	    	    	    	    else
+    	    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    	    script56(scriptSelection);
+    	    	    	    	    	    	    	    }
+    	    	    	    	    
+    	    	    	    	    	    	    }
+    	    	    	    	    	    	    else
+    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    if (enemyQuandrant === 7)
+    	    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    	    script57(scriptSelection);
+    	    	    	    	    	    	    	    }
+    	    	    	    	    	    	    	    else
+    	    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    	    script58(scriptSelection);
+    	    	    	    	    	    	    	    }
+    	    	    	    	    	    	    }
+    	    	    	    	    	    }
+    	    	    	    	    }
+    	    	    	    	    else
+    	    	    	    	    {
+    	    	    	    	    	    if (enemyQuandrant < 5)
+    	    	    	    	    	    {
+    	    	    	    	    	    	    if (enemyQuandrant < 3)
+    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    if (enemyQuandrant === 1)
+    	    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    	    script61(scriptSelection);
+    	    	    	    	    	    	    	    }
+    	    	    	    	    	    	    	    else
+    	    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    	    script62(scriptSelection);
+    	    	    	    	    	    		    }
+    	    	    	    	    
+    	    	    	    	    	    	    }
+    	    	    	    	    	    	    else
+    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    if (enemyQuandrant === 3)
+    	    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    	    script63(scriptSelection);
+    	    	    	    	    	    	    	    }
+    	    	    	    	    	    	    	    else
+    	    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    	    script64(scriptSelection);
+    	    	    	    	    	    	    	    }
+    	    	    	    	    	    	    }
+    	    	    	    	    	    }
+    	    	    	    	    	    else
+    	    	    	    	    	    {
+    	    	    	    	    	    	    if (enemyQuandrant < 7)
+    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    if (enemyQuandrant === 5)
+    	    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    	    script65(scriptSelection);
+    	    	    	    	    	    	    	    }
+    	    	    	    	    	    	    	    else
+    	    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    	    script66(scriptSelection);
+    	    	    	    	    	    	    	    }
+    	    	    	    	    
+    	    	    	    	    	    	    }
+    	    	    	    	    	    	    else
+    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    if (enemyQuandrant === 7)
+    	    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    	    script67(scriptSelection);
+    	    	    	    	    	    	    	    }
+    	    	    	    	    	    	    	    else
+    	    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    	    script68(scriptSelection);
+    	    	    	    	    	    	    	    }
+    	    	    	    	    	    	    }
+    	    	    	    	    	    }
+    	    	    	    	    }
+    	    	    	    	    
+    	    	    	    }
+    	    	    	    else
+    	    	    	    {
+    	    	    	    	    if (avatarQuandrant === 7)
+    	    	    	    	    {
+    	    	    	    	    	    if (enemyQuandrant < 5)
+    	    	    	    	    	    {
+    	    	    	    	    	    	    if (enemyQuandrant < 3)
+    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    if (enemyQuandrant === 1)
+    	    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    	    script71(scriptSelection);
+    	    	    	    	    	    	    	    }
+    	    	    	    	    	    	    	    else
+    	    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    	    script72(scriptSelection);
+    	    	    	    	    	    		    }
+    	    	    	    	    
+    	    	    	    	    	    	    }
+    	    	    	    	    	    	    else
+    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    if (enemyQuandrant === 3)
+    	    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    	    script73(scriptSelection);
+    	    	    	    	    	    	    	    }
+    	    	    	    	    	    	    	    else
+    	    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    	    script74(scriptSelection);
+    	    	    	    	    	    	    	    }
+    	    	    	    	    	    	    }
+    	    	    	    	    	    }
+    	    	    	    	    	    else
+    	    	    	    	    	    {
+    	    	    	    	    	    	    if (enemyQuandrant < 7)
+    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    if (enemyQuandrant === 5)
+    	    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    	    script75(scriptSelection);
+    	    	    	    	    	    	    	    }
+    	    	    	    	    	    	    	    else
+    	    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    	    script76(scriptSelection);
+    	    	    	    	    	    	    	    }
+    	    	    	    	    
+    	    	    	    	    	    	    }
+    	    	    	    	    	    	    else
+    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    if (enemyQuandrant === 7)
+    	    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    	    script77(scriptSelection);
+    	    	    	    	    	    	    	    }
+    	    	    	    	    	    	    	    else
+    	    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    	    script78(scriptSelection);
+    	    	    	    	    	    	    	    }
+    	    	    	    	    	    	    }
+    	    	    	    	    	    }
+    	    	    	    	    }
+    	    	    	    	    else
+    	    	    	    	    {
+    	    	    	    	    	    if (enemyQuandrant < 5)
+    	    	    	    	    	    {
+    	    	    	    	    	    	    if (enemyQuandrant < 3)
+    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    if (enemyQuandrant === 1)
+    	    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    	    script81(scriptSelection);
+    	    	    	    	    	    	    	    }
+    	    	    	    	    	    	    	    else
+    	    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    	    script82(scriptSelection);
+    	    	    	    	    	    		    }
+    	    	    	    	    
+    	    	    	    	    	    	    }
+    	    	    	    	    	    	    else
+    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    if (enemyQuandrant === 3)
+    	    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    	    script83(scriptSelection);
+    	    	    	    	    	    	    	    }
+    	    	    	    	    	    	    	    else
+    	    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    	    script84(scriptSelection);
+    	    	    	    	    	    	    	    }
+    	    	    	    	    	    	    }
+    	    	    	    	    	    }
+    	    	    	    	    	    else
+    	    	    	    	    	    {
+    	    	    	    	    	    	    if (enemyQuandrant < 7)
+    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    if (enemyQuandrant === 5)
+    	    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    	    script85(scriptSelection);
+    	    	    	    	    	    	    	    }
+    	    	    	    	    	    	    	    else
+    	    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    	    script86(scriptSelection);
+    	    	    	    	    	    	    	    }
+    	    	    	    	    
+    	    	    	    	    	    	    }
+    	    	    	    	    	    	    else
+    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    if (enemyQuandrant === 7)
+    	    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    	    script87(scriptSelection);
+    	    	    	    	    	    	    	    }
+    	    	    	    	    	    	    	    else
+    	    	    	    	    	    	    	    {
+    	    	    	    	    	    	    	    	    script88(scriptSelection);
+    	    	    	    	    	    	    	    }
+    	    	    	    	    	    	    }
+    	    	    	    	    	    }
+    	    	    	    	    }
+    	    	    	    }
+    	    	    }
+    }
+    
     function flip()
     {
     	   if (avatar.body.x < enemy.body.x)
@@ -692,70 +1273,6 @@ window.onload = function() {
     	    	    	    } 
     }
     
-    function snipeAimSet()
-    {
-    	    if (enemyFace)
-    	    {
-    	    	    snipeShootSpeedX = game.rnd.integerInRange(650, 1100);
-    	    }
-    	    else
-    	    {
-    	    	    snipeShootSpeedX = -game.rnd.integerInRange(650, 1100);
-    	    }
-    	    snipeAimValue = enemy.body.y - avatar.body.y;
-    	    if (snipeAimValue === 0)
-    	    {
-    	    	    snipeShootSpeed = -game.rnd.integerInRange(0, 5);
-    	    }
-    	    else
-    	    {
-    	    	    snipeShootSpeed = -game.rnd.integerInRange(0, 50) - snipeAimValue;
-    	    }
-    }
-    
-    function aimSet()
-    {
-    	    if (enemy.body.y < 478)
-    	    {
-    	    	    if ((avatar.body.y - enemy.body.y) < 0)
-    	    	    {
-    	    	    	    regularShootSpeed = -game.rnd.integerInRange(450, 500);
-    	    	    }
-    	    	    else
-    	    	    {
-    	    	    	    regularShootSpeed = game.rnd.integerInRange(450, 500);
-    	    	    }
-    	    	    aimValue = avatar.body.x - enemy.body.x;
-    	    	    if (Math.abs(aimValue) < 100)
-    	    	    {
-    	    	    	    regularShootSpeedX = game.rnd.integerInRange(-50, 50);
-    	    	    }
-    	    	    else if (aimValue < 0)
-    	    	    {
-    	    	    	    //console.log(-Math.sqrt((regularShootSpeed * regularShootSpeed) + (aimValue * aimValue)));
-    	    	    	    regularShootSpeedX = game.rnd.integerInRange(-50, 50) + (-Math.sqrt((regularShootSpeed * regularShootSpeed) + (aimValue * aimValue)));
-    	    	    }
-    	    	    else
-    	    	    {
-    	    	    	    //console.log(Math.sqrt((regularShootSpeed * regularShootSpeed) + (aimValue * aimValue)));
-    	    	    	    regularShootSpeedX = game.rnd.integerInRange(-25, 25) + (Math.sqrt((regularShootSpeed * regularShootSpeed) + (aimValue * aimValue)));
-    	    	    }
-    	    }
-    	    else
-    	    {
-    	    	    regularShootSpeedX = game.rnd.integerInRange(450, 500);
-    	    	    aimValue = enemy.body.y - avatar.body.y;
-    	    	    if (aimValue === 0)
-    	    	    {
-    	    	    	    regularShootSpeed = game.rnd.integerInRange(-10, 10);
-    	    	    }
-    	    	    else
-    	    	    {
-    	    	    	    regularShootSpeed = game.rnd.integerInRange(-25, 25) + (-Math.sqrt((regularShootSpeedX * regularShootSpeedX) + (aimValue * aimValue)));
-    	    	    }
-    	    }
-    }
-        
     function airEnd()
     {
     	    if (!inGroundAttack)
@@ -790,6 +1307,764 @@ window.onload = function() {
     	    //console.log('notInScript' + notInScript);
     }
     
+    function script11(scriptSelection)
+    {
+    	    if (scriptSelection < 6)
+    	    {
+    	    	    if (scriptSelection < 4)
+    	    	    {
+    	    	    	    if (scriptSelection === 1)
+    	    	    	    {
+    	    	    	    	    subScript111();
+    	    	    	    }
+    	    	    	    else if (scriptSelection === 2)
+    	    	    	    {
+    	    	    	    	    subScript112();
+    	    	    	    }
+    	    	    	    else
+    	    	    	    {
+    	    	    	    	    subScript113();
+    	    	    	    }
+    	    	    }
+    	    	    else
+    	    	    {
+    	    	    	    if (scriptSelection === 4)
+    	    	    	    {
+    	    	    	    	    subScript114();
+    	    	    	    }
+    	    	    	    else
+    	    	    	    {
+    	    	    	    	    subScript115();
+    	    	    	    }
+    	    	    }
+    	    }
+    	    else
+    	    {
+    	    	    if (scriptSelection < 8)
+    	    	    {
+    	    	    	    if (scriptSelection === 6)
+    	    	    	    {
+    	    	    	    	    subScript116();
+    	    	    	    }
+    	    	    	    else
+    	    	    	    {
+    	    	    	    	    subScript117();
+    	    	    	    }
+    	    	    }
+    	    	    else
+    	    	    {
+    	    	    	    if (scriptSelection === 8)
+    	    	    	    {
+    	    	    	    	    subScript118();
+    	    	    	    }
+    	    	    	    else
+    	    	    	    {
+    	    	    	    	    subScript119();
+    	    	    	    }
+    	    	    }
+    	    }
+    }
+    
+    function script12(scriptSelection)
+    {
+    	    if (scriptSelection < 6)
+    	    {
+    	    	    if (scriptSelection < 4)
+    	    	    {
+    	    	    	    if (scriptSelection === 1)
+    	    	    	    {
+    	    	    	    	    subScript121();
+    	    	    	    }
+    	    	    	    else if (scriptSelection === 2)
+    	    	    	    {
+    	    	    	    	    subScript122();
+    	    	    	    }
+    	    	    	    else
+    	    	    	    {
+    	    	    	    	    subScript123();
+    	    	    	    }
+    	    	    }
+    	    	    else
+    	    	    {
+    	    	    	    if (scriptSelection === 4)
+    	    	    	    {
+    	    	    	    	    subScript124();
+    	    	    	    }
+    	    	    	    else
+    	    	    	    {
+    	    	    	    	    subScript125();
+    	    	    	    }
+    	    	    }
+    	    }
+    	    else
+    	    {
+    	    	    if (scriptSelection < 8)
+    	    	    {
+    	    	    	    if (scriptSelection === 6)
+    	    	    	    {
+    	    	    	    	    subScript126();
+    	    	    	    }
+    	    	    	    else
+    	    	    	    {
+    	    	    	    	    subScript127();
+    	    	    	    }
+    	    	    }
+    	    	    else
+    	    	    {
+    	    	    	    if (scriptSelection === 8)
+    	    	    	    {
+    	    	    	    	    subScript128();
+    	    	    	    }
+    	    	    	    else
+    	    	    	    {
+    	    	    	    	    subScript129();
+    	    	    	    }
+    	    	    }
+    	    }
+    }
+    
+    function script13(scriptSelection)
+    {
+    	    {
+    	    if (scriptSelection < 6)
+    	    {
+    	    	    if (scriptSelection < 4)
+    	    	    {
+    	    	    	    if (scriptSelection === 1)
+    	    	    	    {
+    	    	    	    	    subScript131();
+    	    	    	    }
+    	    	    	    else if (scriptSelection === 2)
+    	    	    	    {
+    	    	    	    	    subScript132();
+    	    	    	    }
+    	    	    	    else
+    	    	    	    {
+    	    	    	    	    subScript133();
+    	    	    	    }
+    	    	    }
+    	    	    else
+    	    	    {
+    	    	    	    if (scriptSelection === 4)
+    	    	    	    {
+    	    	    	    	    subScript134();
+    	    	    	    }
+    	    	    	    else
+    	    	    	    {
+    	    	    	    	    subScript135();
+    	    	    	    }
+    	    	    }
+    	    }
+    	    else
+    	    {
+    	    	    if (scriptSelection < 8)
+    	    	    {
+    	    	    	    if (scriptSelection === 6)
+    	    	    	    {
+    	    	    	    	    subScript136();
+    	    	    	    }
+    	    	    	    else
+    	    	    	    {
+    	    	    	    	    subScript137();
+    	    	    	    }
+    	    	    }
+    	    	    else
+    	    	    {
+    	    	    	    if (scriptSelection === 8)
+    	    	    	    {
+    	    	    	    	    subScript138();
+    	    	    	    }
+    	    	    	    else
+    	    	    	    {
+    	    	    	    	    subScript139();
+    	    	    	    }
+    	    	    }
+    	    }
+    }
+    }
+    
+    function script14(scriptSelection)
+    {
+    	    {
+    	    if (scriptSelection < 6)
+    	    {
+    	    	    if (scriptSelection < 4)
+    	    	    {
+    	    	    	    if (scriptSelection === 1)
+    	    	    	    {
+    	    	    	    	    subScript141();
+    	    	    	    }
+    	    	    	    else if (scriptSelection === 2)
+    	    	    	    {
+    	    	    	    	    subScript142();
+    	    	    	    }
+    	    	    	    else
+    	    	    	    {
+    	    	    	    	    subScript143();
+    	    	    	    }
+    	    	    }
+    	    	    else
+    	    	    {
+    	    	    	    if (scriptSelection === 4)
+    	    	    	    {
+    	    	    	    	    subScript144();
+    	    	    	    }
+    	    	    	    else
+    	    	    	    {
+    	    	    	    	    subScript145();
+    	    	    	    }
+    	    	    }
+    	    }
+    	    else
+    	    {
+    	    	    if (scriptSelection < 8)
+    	    	    {
+    	    	    	    if (scriptSelection === 6)
+    	    	    	    {
+    	    	    	    	    subScript146();
+    	    	    	    }
+    	    	    	    else
+    	    	    	    {
+    	    	    	    	    subScript147();
+    	    	    	    }
+    	    	    }
+    	    	    else
+    	    	    {
+    	    	    	    if (scriptSelection === 8)
+    	    	    	    {
+    	    	    	    	    subScript148();
+    	    	    	    }
+    	    	    	    else
+    	    	    	    {
+    	    	    	    	    subScript149();
+    	    	    	    }
+    	    	    }
+    	    }
+    }
+    }
+    
+    function script15(scriptSelection)
+    {
+    	    {
+    	    if (scriptSelection < 6)
+    	    {
+    	    	    if (scriptSelection < 4)
+    	    	    {
+    	    	    	    if (scriptSelection === 1)
+    	    	    	    {
+    	    	    	    	    subScript151();
+    	    	    	    }
+    	    	    	    else if (scriptSelection === 2)
+    	    	    	    {
+    	    	    	    	    subScript152();
+    	    	    	    }
+    	    	    	    else
+    	    	    	    {
+    	    	    	    	    subScript153();
+    	    	    	    }
+    	    	    }
+    	    	    else
+    	    	    {
+    	    	    	    if (scriptSelection === 4)
+    	    	    	    {
+    	    	    	    	    subScript154();
+    	    	    	    }
+    	    	    	    else
+    	    	    	    {
+    	    	    	    	    subScript155();
+    	    	    	    }
+    	    	    }
+    	    }
+    	    else
+    	    {
+    	    	    if (scriptSelection < 8)
+    	    	    {
+    	    	    	    if (scriptSelection === 6)
+    	    	    	    {
+    	    	    	    	    subScript156();
+    	    	    	    }
+    	    	    	    else
+    	    	    	    {
+    	    	    	    	    subScript157();
+    	    	    	    }
+    	    	    }
+    	    	    else
+    	    	    {
+    	    	    	    if (scriptSelection === 8)
+    	    	    	    {
+    	    	    	    	    subScript158();
+    	    	    	    }
+    	    	    	    else
+    	    	    	    {
+    	    	    	    	    subScript159();
+    	    	    	    }
+    	    	    }
+    	    }
+    }
+    }
+    
+    function script16(scriptSelection)
+    {
+    	    {
+    	    if (scriptSelection < 6)
+    	    {
+    	    	    if (scriptSelection < 4)
+    	    	    {
+    	    	    	    if (scriptSelection === 1)
+    	    	    	    {
+    	    	    	    	    subScript161();
+    	    	    	    }
+    	    	    	    else if (scriptSelection === 2)
+    	    	    	    {
+    	    	    	    	    subScript162();
+    	    	    	    }
+    	    	    	    else
+    	    	    	    {
+    	    	    	    	    subScript163();
+    	    	    	    }
+    	    	    }
+    	    	    else
+    	    	    {
+    	    	    	    if (scriptSelection === 4)
+    	    	    	    {
+    	    	    	    	    subScript164();
+    	    	    	    }
+    	    	    	    else
+    	    	    	    {
+    	    	    	    	    subScript165();
+    	    	    	    }
+    	    	    }
+    	    }
+    	    else
+    	    {
+    	    	    if (scriptSelection < 8)
+    	    	    {
+    	    	    	    if (scriptSelection === 6)
+    	    	    	    {
+    	    	    	    	    subScript166();
+    	    	    	    }
+    	    	    	    else
+    	    	    	    {
+    	    	    	    	    subScript167();
+    	    	    	    }
+    	    	    }
+    	    	    else
+    	    	    {
+    	    	    	    if (scriptSelection === 8)
+    	    	    	    {
+    	    	    	    	    subScript168();
+    	    	    	    }
+    	    	    	    else
+    	    	    	    {
+    	    	    	    	    subScript169();
+    	    	    	    }
+    	    	    }
+    	    }
+    }
+    }
+    
+    function script17(scriptSelection)
+    {
+    	    {
+    	    if (scriptSelection < 6)
+    	    {
+    	    	    if (scriptSelection < 4)
+    	    	    {
+    	    	    	    if (scriptSelection === 1)
+    	    	    	    {
+    	    	    	    	    subScript171();
+    	    	    	    }
+    	    	    	    else if (scriptSelection === 2)
+    	    	    	    {
+    	    	    	    	    subScript172();
+    	    	    	    }
+    	    	    	    else
+    	    	    	    {
+    	    	    	    	    subScript173();
+    	    	    	    }
+    	    	    }
+    	    	    else
+    	    	    {
+    	    	    	    if (scriptSelection === 4)
+    	    	    	    {
+    	    	    	    	    subScript174();
+    	    	    	    }
+    	    	    	    else
+    	    	    	    {
+    	    	    	    	    subScript175();
+    	    	    	    }
+    	    	    }
+    	    }
+    	    else
+    	    {
+    	    	    if (scriptSelection < 8)
+    	    	    {
+    	    	    	    if (scriptSelection === 6)
+    	    	    	    {
+    	    	    	    	    subScript176();
+    	    	    	    }
+    	    	    	    else
+    	    	    	    {
+    	    	    	    	    subScript177();
+    	    	    	    }
+    	    	    }
+    	    	    else
+    	    	    {
+    	    	    	    if (scriptSelection === 8)
+    	    	    	    {
+    	    	    	    	    subScript178();
+    	    	    	    }
+    	    	    	    else
+    	    	    	    {
+    	    	    	    	    subScript179();
+    	    	    	    }
+    	    	    }
+    	    }
+    }
+    }
+    
+    function script18(scriptSelection)
+    {
+    	    {
+    	    if (scriptSelection < 6)
+    	    {
+    	    	    if (scriptSelection < 4)
+    	    	    {
+    	    	    	    if (scriptSelection === 1)
+    	    	    	    {
+    	    	    	    	    subScript181();
+    	    	    	    }
+    	    	    	    else if (scriptSelection === 2)
+    	    	    	    {
+    	    	    	    	    subScript182();
+    	    	    	    }
+    	    	    	    else
+    	    	    	    {
+    	    	    	    	    subScript183();
+    	    	    	    }
+    	    	    }
+    	    	    else
+    	    	    {
+    	    	    	    if (scriptSelection === 4)
+    	    	    	    {
+    	    	    	    	    subScript184();
+    	    	    	    }
+    	    	    	    else
+    	    	    	    {
+    	    	    	    	    subScript185();
+    	    	    	    }
+    	    	    }
+    	    }
+    	    else
+    	    {
+    	    	    if (scriptSelection < 8)
+    	    	    {
+    	    	    	    if (scriptSelection === 6)
+    	    	    	    {
+    	    	    	    	    subScript186();
+    	    	    	    }
+    	    	    	    else
+    	    	    	    {
+    	    	    	    	    subScript187();
+    	    	    	    }
+    	    	    }
+    	    	    else
+    	    	    {
+    	    	    	    if (scriptSelection === 8)
+    	    	    	    {
+    	    	    	    	    subScript188();
+    	    	    	    }
+    	    	    	    else
+    	    	    	    {
+    	    	    	    	    subScript189();
+    	    	    	    }
+    	    	    }
+    	    }
+    }
+    }
+    
+    function script21(scriptSelection)
+    {
+    	    
+    }
+    
+    function script22(scriptSelection)
+    {
+    	    
+    }
+    
+    function script23(scriptSelection)
+    {
+    	    
+    }
+    
+    function script24(scriptSelection)
+    {
+    	    
+    }
+    
+    function script25(scriptSelection)
+    {
+    	    
+    }
+    
+    function script26(scriptSelection)
+    {
+    	    
+    }
+    
+    function script27(scriptSelection)
+    {
+    	    
+    }
+    
+    function script28(scriptSelection)
+    {
+    	    
+    }
+    
+    function script31(scriptSelection)
+    {
+    	    
+    }
+    
+    function script32(scriptSelection)
+    {
+    	    
+    }
+    
+    function script33(scriptSelection)
+    {
+    	    
+    }
+    
+    function script34(scriptSelection)
+    {
+    	    
+    }
+    
+    function script35(scriptSelection)
+    {
+    	    
+    }
+    
+    function script36(scriptSelection)
+    {
+    	    
+    }
+    
+    function script37(scriptSelection)
+    {
+    	    
+    }
+    
+    function script38(scriptSelection)
+    {
+    	    
+    }
+    
+    function script41(scriptSelection)
+    {
+    	    
+    }
+    
+    function script42(scriptSelection)
+    {
+    	    
+    }
+    
+    function script43(scriptSelection)
+    {
+    	    
+    }
+    
+    function script44(scriptSelection)
+    {
+    	    
+    }
+    
+    function script45(scriptSelection)
+    {
+    	    
+    }
+    
+    function script46(scriptSelection)
+    {
+    	    
+    }
+    
+    function script47(scriptSelection)
+    {
+    	    
+    }
+    
+    function script48(scriptSelection)
+    {
+    	    
+    }
+    
+    function script51(scriptSelection)
+    {
+    	    
+    }
+    
+    function script52(scriptSelection)
+    {
+    	    
+    }
+    
+    function script53(scriptSelection)
+    {
+    	    
+    }
+    
+    function script54(scriptSelection)
+    {
+    	    
+    }
+    
+    function script55(scriptSelection)
+    {
+    	    
+    }
+    
+    function script56(scriptSelection)
+    {
+    	    
+    }
+    
+    function script57(scriptSelection)
+    {
+    	    
+    }
+    
+    function script58(scriptSelection)
+    {
+    	    
+    }
+    
+    function script61(scriptSelection)
+    {
+    	    
+    }
+    
+    function script62(scriptSelection)
+    {
+    	    
+    }
+    
+    function script63(scriptSelection)
+    {
+    	    
+    }
+    
+    function script64(scriptSelection)
+    {
+    	    
+    }
+    
+    function script65(scriptSelection)
+    {
+    	    
+    }
+    
+    function script66(scriptSelection)
+    {
+    	    
+    }
+    
+    function script67(scriptSelection)
+    {
+    	    
+    }
+    
+    function script68(scriptSelection)
+    {
+    	    
+    }
+    
+    function script71(scriptSelection)
+    {
+    	    
+    }
+    
+    function script72(scriptSelection)
+    {
+    	    
+    }
+    
+    function script73(scriptSelection)
+    {
+    	    
+    }
+    
+    function script74(scriptSelection)
+    {
+    	    
+    }
+    
+    function script75(scriptSelection)
+    {
+    	    
+    }
+    
+    function script76(scriptSelection)
+    {
+    	    
+    }
+    
+    function script77(scriptSelection)
+    {
+    	    
+    }
+    
+    function script78(scriptSelection)
+    {
+    	    
+    }
+    
+    function script81(scriptSelection)
+    {
+    	    
+    }
+    
+    function script82(scriptSelection)
+    {
+    	    
+    }
+    
+    function script83(scriptSelection)
+    {
+    	    
+    }
+    
+    function script84(scriptSelection)
+    {
+    	    
+    }
+    
+    function script85(scriptSelection)
+    {
+    	    
+    }
+    
+    function script86(scriptSelection)
+    {
+    	    
+    }
+    
+    function script87(scriptSelection)
+    {
+    	    
+    }
+    
+    function script88(scriptSelection)
+    {
+    	    
+    }
+    
+    
+    /*
     function script11()
     {
     	    notInScript = 0;
@@ -1077,7 +2352,7 @@ window.onload = function() {
     	    {
     	    	    //Baby Raging Storm
     	    }
-    }
+    }*/
     
     function killEnemySnipeShot(wall, snipeBullet)
     {
