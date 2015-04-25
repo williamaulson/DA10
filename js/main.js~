@@ -94,13 +94,6 @@ window.onload = function() {
     var snipeAimValue = 0;
     var enemySnipeGroup;
     var firstStart = 1;
-    var aimObject;
-    var avatarOnGround;
-    var previousAvatarX;
-    var avatarX = 0;
-    var towards;
-    var avatarTowards;
-    var avatarHigh;
     
     function create() //create assets
     {
@@ -219,8 +212,7 @@ window.onload = function() {
     
     function update() //run game logic
     {
-    	    console.log('enemy y' + enemy.body.y);
-    	    console.log('avatar y' + avatar.body.y);
+    	    //console.log('enemy y' + enemy.body.y);
     	    
     	    if ((avatarLife < 1) && (gameEnd === false)) //endgame check
     	    {
@@ -243,44 +235,6 @@ window.onload = function() {
     	       	    
     	    if (gameRunning) //game actually running
     	    {
-    	    	    previousAvatarX = avatarX;
-    	    	    avatarX = avatar.body.x;
-    	    	    if (avatar.body.y < 478)
-    	    	    {
-    	    	    	    avatarOnGround = 0;
-    	    	    }
-    	    	    else
-    	    	    {
-    	    	    	    avatarOnGround = 1;
-    	    	    }
-    	    	    towards = previousAvatarX - avatarX;
-    	    	    if (towards < 0)
-    	    	    {
-    	    	    	    avatarTowards = 2;
-    	    	    }
-    	    	    else if (towards > 0)
-    	    	    {
-    	    	    	    avatarTowards = 0;
-    	    	    }
-    	    	    else
-    	    	    {
-    	    	    	    avatarTowards = 1;
-    	    	    }
-    	    	    if (avatar.y < 400)
-    	    	    {
-    	    	    	    avatarHigh = 1;
-    	    	    }
-    	    	    else
-    	    	    {
-    	    	    	    avatarHigh = 0;
-    	    	    }
-    	    	    
-    	    	    
-    	    	    
-    	    	    
-    	    	    
-    	    	    
-    	    	    
     	    	    //console.log('count' + count);
     	    	    if (firstStart)
     	    	    {
@@ -452,18 +406,16 @@ window.onload = function() {
     	    	    {
     	    	    	    if (game.time.now > regularShootTime)
     	    	    	    {
-    	    	    	    	    aimObject = game.add.sprite(avatar.body.x + game.rnd.integerInRange(-50, 50), avatar.body.y + game.rnd.integerInRange(-50, 50), '');
     	    	    	    	    shoot.play('', .6, 1, false);
     	    	    	    	    enemyShot = enemyShotGroup.create(enemy.x, enemy.y + 5, 'shot');
     	    	    	    	    game.physics.arcade.enable(enemyShot);
     	    	    	    	    //var y = getYRegAimAir();
     	    	    	    	    //var x = getXRegAimAir();
-    	    	    	    	    //aimSet();
+    	    	    	    	    aimSet();
     	    	    	    	    //console.log('y: ' + y);
     	    	    	    	    //console.log('x: ' + x);
-    	    	    	    	    //enemyShot.body.velocity.y = regularShootSpeed;
-    	    	    	    	    //enemyShot.body.velocity.x = regularShootSpeedX;
-    	    	    	    	    game.physics.arcade.moveToObject(enemyShot, aimObject, game.rnd.integerInRange(400, 600));
+    	    	    	    	    enemyShot.body.velocity.y = regularShootSpeed;
+    	    	    	    	    enemyShot.body.velocity.x = regularShootSpeedX;
     	    	    	    	    enemyShot.animations.add('regShotE', [0, 1], 10, true);
     	    	    	    	    enemyShot.animations.play('regShotE');
     	    	    	    	    regularShootTime = game.time.now + (300 * regularShootRate);
@@ -480,7 +432,6 @@ window.onload = function() {
     	    	    {
     	    	    	    if (game.time.now > snipeShootTime)
     	    	    	    {
-    	    	    	    	    aimObject = game.add.sprite(avatar.body.x + game.rnd.integerInRange(-25, 25), avatar.body.y + game.rnd.integerInRange(-25, 25), '');
     	    	    	    	    shoot.play('', .6, 1, false);
     	    	    	    	    if (enemyFace)
     	    	    	    	    {
@@ -494,14 +445,13 @@ window.onload = function() {
     	    	    	    	    game.physics.arcade.enable(snipeShoot);
     	    	    	    	    //var y = getYRegAimAir();
     	    	    	    	    //var x = getXRegAimAir();
-    	    	    	    	    //snipeAimSet();
-    	    	    	    	    //console.log('y: ' + snipeShootSpeed);
-    	    	    	    	    //console.log('x: ' + snipeShootSpeedX);
-    	    	    	    	    //snipeShoot.body.velocity.y = snipeShootSpeed;
-    	    	    	    	    //snipeShoot.body.velocity.x = snipeShootSpeedX;
+    	    	    	    	    snipeAimSet();
+    	    	    	    	    console.log('y: ' + snipeShootSpeed);
+    	    	    	    	    console.log('x: ' + snipeShootSpeedX);
+    	    	    	    	    snipeShoot.body.velocity.y = snipeShootSpeed;
+    	    	    	    	    snipeShoot.body.velocity.x = snipeShootSpeedX;
     	    	    	    	    //enemyShot.animations.add('regShotE', [0, 1], 10, true);
     	    	    	    	    //enemyShot.animations.play('regShotE');
-    	    	    	    	    game.physics.arcade.moveToObject(snipeShoot, aimObject, game.rnd.integerInRange(1000, 1300));
     	    	    	    	    snipeShootTime = game.time.now + (300 * snipeShootRate);
     	    	    	    	    snipeShootCount = snipeShootCount - 1;
     	    	    	    }
@@ -742,6 +692,70 @@ window.onload = function() {
     	    	    	    } 
     }
     
+    function snipeAimSet()
+    {
+    	    if (enemyFace)
+    	    {
+    	    	    snipeShootSpeedX = game.rnd.integerInRange(650, 1100);
+    	    }
+    	    else
+    	    {
+    	    	    snipeShootSpeedX = -game.rnd.integerInRange(650, 1100);
+    	    }
+    	    snipeAimValue = enemy.body.y - avatar.body.y;
+    	    if (snipeAimValue === 0)
+    	    {
+    	    	    snipeShootSpeed = -game.rnd.integerInRange(0, 5);
+    	    }
+    	    else
+    	    {
+    	    	    snipeShootSpeed = -game.rnd.integerInRange(0, 50) - snipeAimValue;
+    	    }
+    }
+    
+    function aimSet()
+    {
+    	    if (enemy.body.y < 478)
+    	    {
+    	    	    if ((avatar.body.y - enemy.body.y) < 0)
+    	    	    {
+    	    	    	    regularShootSpeed = -game.rnd.integerInRange(450, 500);
+    	    	    }
+    	    	    else
+    	    	    {
+    	    	    	    regularShootSpeed = game.rnd.integerInRange(450, 500);
+    	    	    }
+    	    	    aimValue = avatar.body.x - enemy.body.x;
+    	    	    if (Math.abs(aimValue) < 100)
+    	    	    {
+    	    	    	    regularShootSpeedX = game.rnd.integerInRange(-50, 50);
+    	    	    }
+    	    	    else if (aimValue < 0)
+    	    	    {
+    	    	    	    //console.log(-Math.sqrt((regularShootSpeed * regularShootSpeed) + (aimValue * aimValue)));
+    	    	    	    regularShootSpeedX = game.rnd.integerInRange(-50, 50) + (-Math.sqrt((regularShootSpeed * regularShootSpeed) + (aimValue * aimValue)));
+    	    	    }
+    	    	    else
+    	    	    {
+    	    	    	    //console.log(Math.sqrt((regularShootSpeed * regularShootSpeed) + (aimValue * aimValue)));
+    	    	    	    regularShootSpeedX = game.rnd.integerInRange(-25, 25) + (Math.sqrt((regularShootSpeed * regularShootSpeed) + (aimValue * aimValue)));
+    	    	    }
+    	    }
+    	    else
+    	    {
+    	    	    regularShootSpeedX = game.rnd.integerInRange(450, 500);
+    	    	    aimValue = enemy.body.y - avatar.body.y;
+    	    	    if (aimValue === 0)
+    	    	    {
+    	    	    	    regularShootSpeed = game.rnd.integerInRange(-10, 10);
+    	    	    }
+    	    	    else
+    	    	    {
+    	    	    	    regularShootSpeed = game.rnd.integerInRange(-25, 25) + (-Math.sqrt((regularShootSpeedX * regularShootSpeedX) + (aimValue * aimValue)));
+    	    	    }
+    	    }
+    }
+        
     function airEnd()
     {
     	    if (!inGroundAttack)
@@ -838,7 +852,7 @@ window.onload = function() {
     	    {
     	    	    //shoot.play('', .6, 1, false);
     	    	    snipeShootCount = 1;
-    	    	    game.time.events.add(Phaser.Timer.SECOND * .30, readySnipeShoot, null);  
+    	    	    game.time.events.add(Phaser.Timer.SECOND * .50, readySnipeShoot, null);  
     	    }
     	    else
     	    {
@@ -1019,7 +1033,7 @@ window.onload = function() {
     	    	   //enemy.body.velocity.x = -500;
     	    	   //game.time.events.add(Phaser.Timer.SECOND * .50, flip, null);
     	    	   regularShootCount = 3;
-    	    	   game.time.events.add(Phaser.Timer.SECOND * .30, readyRegShoot, null);
+    	    	   game.time.events.add(Phaser.Timer.SECOND * .75, readyRegShoot, null);
     	    	   //fire script
     	    }
     	    else
